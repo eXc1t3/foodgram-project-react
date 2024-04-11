@@ -11,9 +11,9 @@ services:
     env_file: .env
     volumes:
       - pg_data:/var/lib/postgresql/data
- 
+
   backend:
-    build: ../backend/
+    image: orlanuzum/foodgram_backend
     env_file: .env
     depends_on:
       - db
@@ -22,11 +22,11 @@ services:
       - media:/app/media
 
   frontend:
-    build: ../frontend/
+    image: orlanuzum/foodgram_frontend
     env_file: .env
-    command: cp -r /app/build/. /frontend_static/ 
+    command: cp -r /app/build/. /frontend_static/
     volumes:
-      - static:/frontend_static 
+      - static:/frontend_static
 
   nginx:
       image: nginx:1.19.3
