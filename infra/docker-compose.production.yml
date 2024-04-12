@@ -18,15 +18,15 @@ services:
     depends_on:
       - db
     volumes:
-      - static:/backend_static
-      - media:/app/media
+      - static:/static/
+      - media:/app/media/
 
   frontend:
     image: orlanuzum/foodgram_frontend
     env_file: .env
     command: cp -r /app/build/. /static/
     volumes:
-      - static:/frontend_static
+      - static:/static/
 
   gateway:
     image: orlanuzum/foodgram_gateway
