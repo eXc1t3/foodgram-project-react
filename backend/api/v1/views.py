@@ -17,11 +17,11 @@ from io import BytesIO
 
 from foodgram_backend.constants import FILE_NAME
 from recipes.models import (Favorites, Ingredient, Recipe,
-                            RecipeIngredients,ShoppingCart, Tag,)
+                            RecipeIngredients, ShoppingCart, Tag,)
 from users.models import Subscribe, User
 from .filters import IngredientFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (IngredientSerializer, RecipeCreateSerializer, 
+from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, SubscribeCreateSerializer,
                           SubscribeSerializer, TagSerializer,
                           FavoritesSerializer, ShoppingCartSerializer,)
@@ -59,7 +59,7 @@ class SubscribeViewSet(views.APIView):
             user=request.user, author=user).delete()
         if not deleted_subscribe:
             return Response({'errors': 'Такой подписки не существует'},
-                status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -126,7 +126,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=request.user, recipe=recipe)).delete()
         if not deleted_shopping_list:
             return Response({'errors': 'Рецепта нет в списке покупок!'},
-                status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['get'],
@@ -151,7 +151,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         y = 750
         for idx, ingredient in enumerate(shopping_list, start=1):
             line = (f"{idx}. {ingredient['name']} "
-                    f"({ingredient['measurement_unit']}) - {ingredient['amount']}")
+                    f"({ingredient['measurement_unit']}) - "
+                    f"{ingredient['amount']}")
             p.drawString(100, y, line)
             y -= 20
         p.showPage()
