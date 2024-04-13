@@ -1,7 +1,10 @@
 import csv
+import sys
 
 from django.conf import settings
 from django.core.management import BaseCommand
+
+sys.path.append('/app/recipes')
 
 from recipes.models import Ingredient
 

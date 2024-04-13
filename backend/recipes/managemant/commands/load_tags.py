@@ -1,4 +1,8 @@
+import sys
+
 from django.core.management import BaseCommand
+
+sys.path.append('/app/recipes')
 
 from recipes.models import Tag
 
