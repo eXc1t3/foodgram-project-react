@@ -12,8 +12,7 @@ class Command(BaseCommand):
         if Ingredient.objects.all().exists():
             print('Данные ингредиентов уже загружены')
         else:
-            with open(
-                settings.BASE_DIR / 'data/ingredients.csv',
+            with open(settings.BASE_DIR / 'data/ingredients.csv',
                 'r',
                 encoding='utf8',
                 newline=''
