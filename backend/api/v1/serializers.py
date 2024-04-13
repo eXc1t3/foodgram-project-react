@@ -82,8 +82,8 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
         fields = ('user', 'recipe')
 
     def validate(self, value):
-        if ShoppingCart.objects.filter(
-            user=value['user'], recipe=value['recipe']).exists():
+        if ShoppingCart.objects.filter(user=value['user'],
+                                       recipe=value['recipe']).exists():
             raise serializers.ValidationError(
                 {'errors': 'Рецепт уже добавлен в список покупок'})
         return value
@@ -99,8 +99,8 @@ class FavoritesSerializer(serializers.ModelSerializer):
         fields = ('user', 'recipe')
 
     def validate(self, value):
-        if Favorites.objects.filter(
-            user=value['user'], recipe=value['recipe']).exists():
+        if Favorites.objects.filter(user=value['user'],
+                                    recipe=value['recipe']).exists():
             raise serializers.ValidationError(
                 {'errors': 'Рецепт уже добавлен в избранное'})
         return value
