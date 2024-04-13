@@ -7,8 +7,6 @@ from recipes.models import Ingredient, Tag
 
 
 class Command(BaseCommand):
-    """Команда для импорта CSV-файлов в базу данных"""
-    help = 'Загрузка CSV-файлов в базу данных.'
 
     def import_ingredient(self):
         if Ingredient.objects.all().exists():
@@ -41,7 +39,7 @@ class Command(BaseCommand):
                 for row in reader:
                     Tag.objects.create(name=row['name'], color=row['color'],
                                        slug=row['slug'])
-                print('Данные тэгов успешно загружены!')
+                print('Данные тэгов успешно загружены')
 
     def handle(self, *args, **kwargs):
         self.import_ingredient()
