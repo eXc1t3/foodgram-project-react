@@ -27,9 +27,12 @@ class Command(BaseCommand):
                 data = json.load(file)
                 total_items = len(data)
                 for i, item in enumerate(data, 1):
-                    self.stdout.write(f'Загрузка данных {i} из {total_items}', ending='\r')
-                    obj, created = model.objects.get_or_create(**{field: item[field] for field in fields})
-                self.stdout.write(self.style.SUCCESS('Данные успешно загружены!'))
+                    self.stdout.write(f'Загрузка данных {i} из {total_items}',
+                                      ending='\r')
+                    obj, created = model.objects.get_or_create(
+                        **{field: item[field] for field in fields})
+                self.stdout.write(
+                    self.style.SUCCESS('Данные успешно загружены!'))
 
     def handle(self, *args, **kwargs):
         self.import_data(
