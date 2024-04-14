@@ -8,14 +8,16 @@ from django.shortcuts import get_object_or_404
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
+from users.models import Subscription, User
+
 from uttils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE,
                              MIN_VALUE, RECIPES_LIMIT)
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import Subscription, User
 from uttils.validators import validate_username
 
 

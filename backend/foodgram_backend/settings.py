@@ -1,7 +1,7 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-from pathlib import Path
 
 from uttils.constans import MAX_PAGE_SIZE
 
