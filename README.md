@@ -8,7 +8,7 @@
 [![GitHub%20Actions](https://img.shields.io/badge/-GitHub%20Actions-464646?style=flat-square&logo=GitHub%20actions)](https://github.com/features/actions)
 [![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat-square&logo=Yandex.Cloud)](https://cloud.yandex.ru/)
 <br>
-![badge](https://github.com/devlili/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+[![.github/workflows/main.yml](https://github.com/eXc1t3/kittygram_final/actions/workflows/main.yml/badge.svg)](https://github.com/eXc1t3/kittygram_final/actions/workflows/main.yml)
 
 
 # Cервис Foodgram - продуктовый помощник
