@@ -150,10 +150,6 @@ jobs:
     - name: Send message
       uses: appleboy/telegram-action@master
       with:
-        to: ${{ secrets.TG_ID }}
-        token: ${{ secrets.TG_TOKEN }}
-        message: |
-          Деплой успешно выполнен!
-          Сообщение от: ${{ github.actor }}
-          Сообщение коммита: ${{ github.event.commits[0].message }}
-          Ссылка на коммит: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: Деплой kittygram успешно выполнен! Коммит сделал ${{ github.actor }} с сообщением "${{ github.event.commits[0].message }}". Ссылка на коммит https://github.com/${{ github.repository }}/commit/${{github.sha}}.
