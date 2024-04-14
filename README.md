@@ -18,7 +18,6 @@
 - [Создание Docker-образов](#docker)
 - [Деплой на сервере](#deploy)
 - [Настройка CI/CD](#ci/cd)
-- [Автор](#author)
 
 ---
 ## Описание <a id=description></a>
