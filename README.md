@@ -113,8 +113,7 @@
     ```
     Заполните базу данных:
     ```bash
-    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_ingredients
-    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_tags
+    sudo docker compose -f docker-compose.production.yml exec backend python manage.py load_json
     ```
 
 7. На сервере в редакторе nano откройте конфиг Nginx:
