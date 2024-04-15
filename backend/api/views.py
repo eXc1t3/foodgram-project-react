@@ -3,6 +3,7 @@ import collections
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from django.db.models import Count
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -174,9 +175,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         filename = f'{user.username}_shopping_list.txt'
-        ingredients = (RecipeIngredient.objects.filter(
-            recipe__in=request.user.shopping_cart.all()).values_list(
-                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__in=request.user.shopping_cart.all()
+        ).values('ingredient__name').annotate(total_amount=Count('ingredient__name'))
         result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
         for ingredient, amount, unit in ingredients:
             result[ingredient] = (
