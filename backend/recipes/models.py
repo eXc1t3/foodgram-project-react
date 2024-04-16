@@ -92,7 +92,7 @@ class Recipe(models.Model):
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
-        related_name='favorites',
+        related_name='recipes',
         verbose_name='Избранное',
         blank=True)
     shopping_cart = models.ManyToManyField(
