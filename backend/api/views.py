@@ -182,10 +182,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         user = request.user
         filename = f'{user.username}_shopping_list.txt'
-        ingredients = RecipeIngredient.objects.filter(
-            recipe__in=request.user.shopping_cart.all()
-        ).values('ingredient__name').annotate(
-            total_amount=Count('ingredient__name'))
+        ingredients = (RecipeIngredient.objects.filter(
+            recipe__in=request.user.shopping_cart.all()).values_list(
+                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
         result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
         for ingredient, amount, unit in ingredients:
             result[ingredient] = (
