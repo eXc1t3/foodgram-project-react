@@ -1,7 +1,6 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
@@ -275,16 +274,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.bulk_create(
                 RecipeIngredient(
                     recipe=recipe,
-                    ingredient=get_object_or_404(
-                        Ingredient, id=ingredient['id']
-                    ),
+                    Ingredient_id=ingredient['id'],
                     amount=ingredient['amount'],
                 )
                 for ingredient in ingredients
             )
-        except IntegrityError as error:
+        except IntegrityError:
             raise ValidationError(
-                (f'Ошибка при добавлении ингредиента: {error}')
+                ('Ошибка при добавлении ингредиента')
             )
 
     def create(self, validated_data):
@@ -293,7 +290,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.add_ingredients(recipe, ingredients)
-        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
@@ -303,7 +299,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         instance.tags.set(tags)
         self.add_ingredients(instance, ingredients)
-        instance.save()
         return instance
 
 
