@@ -84,20 +84,20 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='recipes',
+        related_name='ingredients',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipes',
+        related_name='tags',
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
-        related_name='recipes',
+        related_name='favorites',
         verbose_name='Избранное',
         blank=True)
     shopping_cart = models.ManyToManyField(
         User,
-        related_name='recipes',
+        related_name='shopping_cart',
         verbose_name='Список покупок',
         blank=True)
     created = models.DateTimeField(
