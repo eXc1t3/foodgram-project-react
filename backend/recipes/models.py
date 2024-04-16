@@ -90,7 +90,7 @@ class Recipe(models.Model):
         Tag,
         related_name='recipes',
         verbose_name='Tags')
-    favorites = models.ManyToManyField( 
+    favorites = models.ManyToManyField(
         User,
         related_name='favorites',
         verbose_name='Избранное',
