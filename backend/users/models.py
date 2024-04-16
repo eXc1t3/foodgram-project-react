@@ -2,15 +2,12 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-from uttils.constans import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
-from uttils.validators import validate_username
+from utils.constans import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
+from utils.validators import validate_username
 
 
 class User(AbstractUser):
     """Кастомная модель User"""
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     email = models.EmailField(
         verbose_name='Адрес электронной почты',
@@ -46,12 +43,12 @@ class User(AbstractUser):
         verbose_name='Пароль',
     )
 
-    def __str__(self):
-        return self.username
-
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return self.username
 
 
 class Subscription(models.Model):
@@ -59,19 +56,16 @@ class Subscription(models.Model):
 
     subscriber = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
         related_name='subscriber',
-        verbose_name='Подписчик'
+        verbose_name='Подписчик',
+        on_delete=models.CASCADE
     )
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
         related_name='author',
-        verbose_name='Автор рецепта'
+        verbose_name='Автор рецепта',
+        on_delete=models.CASCADE,
     )
-
-    def __str__(self):
-        return f'Пользователь "{self.subscriber}" подписан на "{self.author}"'
 
     class Meta:
         verbose_name = 'Подписка на пользователя'
@@ -87,3 +81,6 @@ class Subscription(models.Model):
                 name="user_cannot_subscrib_himself",
             ),
         ]
+
+    def __str__(self):
+        return f'Пользователь "{self.subscriber}" подписан на "{self.author}"'

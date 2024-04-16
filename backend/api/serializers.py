@@ -12,9 +12,9 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import Subscription, User
 
-from uttils.constans import (
+from utils.constans import (
     MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE, RECIPES_LIMIT)
-from uttils.validators import validate_username
+from utils.validators import validate_username
 
 from .fields import Base64ImageField
 

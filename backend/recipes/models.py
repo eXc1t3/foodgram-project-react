@@ -5,8 +5,8 @@ from django.db import models
 
 from users.models import User
 
-from uttils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
-from uttils.validators import validate_slug, validate_value_greater_zero
+from utils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
+from utils.validators import validate_slug, validate_value_greater_zero
 
 
 class Tag(models.Model):
@@ -40,18 +40,18 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента"""
+    """Модель ингредиента"""
 
     name = models.CharField(
-        verbose_name='Название ингридиента',
+        verbose_name='Название ингредиента',
         max_length=MAX_LENGTH)
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         max_length=MAX_LENGTH)
 
     class Meta:
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
 
     def __str__(self):
@@ -84,20 +84,20 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='ingredients',
+        recipes='ingredients',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        recipes='tags',
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
-        related_name='favorites',
+        recipes='favorites',
         verbose_name='Избранное',
         blank=True)
     shopping_cart = models.ManyToManyField(
         User,
-        related_name='shopping_cart',
+        recipes='shopping_cart',
         verbose_name='Список покупок',
         blank=True)
     created = models.DateTimeField(
@@ -114,12 +114,12 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Модель ингридиента в рецепте"""
+    """Модель ингредиента в рецепте"""
 
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredient')
+        related_name='recipes_ingredients')
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -128,12 +128,12 @@ class RecipeIngredient(models.Model):
         validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero
                     ],
-        verbose_name='Количество ингридиентов',
+        verbose_name='Количество ингредиентов',
         db_index=True)
 
     class Meta:
-        verbose_name = 'Количество ингридиентов'
-        verbose_name_plural = 'Количество ингридиентов'
+        verbose_name = 'Количество ингредиентов'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
