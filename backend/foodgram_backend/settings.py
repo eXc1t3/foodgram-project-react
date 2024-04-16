@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from uttils.constans import MAX_PAGE_SIZE
+from utils.constans import MAX_PAGE_SIZE
 
 load_dotenv()
 
