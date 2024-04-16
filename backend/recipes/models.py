@@ -70,7 +70,7 @@ class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='authored_recipes',  # Измененное related_name
+        related_name='recipes',
         verbose_name='Автор рецепта')
     image = models.ImageField(
         upload_to='recipes/',
@@ -92,12 +92,12 @@ class Recipe(models.Model):
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
-        related_name='favorited_recipes',  # Измененное related_name
+        related_name='recipes',
         verbose_name='Избранное',
         blank=True)
     shopping_cart = models.ManyToManyField(
         User,
-        related_name='recipes_in_shopping_cart',  # Измененное related_name
+        related_name='recipes',
         verbose_name='Список покупок',
         blank=True)
     created = models.DateTimeField(
@@ -119,7 +119,7 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipes_ingredients')
+        related_name='recipe_ingredients')
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
