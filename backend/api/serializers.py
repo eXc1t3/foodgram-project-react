@@ -290,6 +290,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.add_ingredients(recipe, ingredients)
+        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
