@@ -1,7 +1,4 @@
-import base64
-
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import F
 from django.shortcuts import get_object_or_404
@@ -19,6 +16,8 @@ from users.models import Subscription, User
 from uttils.constans import (
     MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE, RECIPES_LIMIT)
 from uttils.validators import validate_username
+
+from .fields import Base64ImageField
 
 
 class RecipeShortListSerializer(serializers.ModelSerializer):
@@ -211,19 +210,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
             'id',
             'amount',
         )
-
-
-class Base64ImageField(serializers.ImageField):
-    """Сериализатор для поля картинки в формате Base64."""
-
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr),
-                               name='temp.' + ext
-                               )
-        return super().to_internal_value(data)
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
