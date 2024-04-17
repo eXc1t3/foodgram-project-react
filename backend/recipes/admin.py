@@ -2,7 +2,10 @@ from django.contrib import admin
 
 from utils.constans import MIN_VALUE
 
-from .models import Ingredient, Recipe, RecipeIngredient, Tag
+from .models import Ingredient
+from .models import Recipe
+from .models import RecipeIngredient
+from .models import Tag
 
 
 class RecipeIngredientInline(admin.StackedInline):

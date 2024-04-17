@@ -2,15 +2,20 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
 
-from djoser.serializers import UserCreateSerializer, UserSerializer
+from djoser.serializers import UserCreateSerializer
+from djoser.serializers import UserSerializer
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import Ingredient
+from recipes.models import Recipe
+from recipes.models import RecipeIngredient
+from recipes.models import Tag
 
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from users.models import Subscription, User
+from users.models import Subscription
+from users.models import User
 
 from utils.constans import (
     MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE, RECIPES_LIMIT)
@@ -279,9 +284,11 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 )
                 for ingredient in ingredients
             )
-        except IntegrityError:
+        except IntegrityError as e:
+            logger.error(f'IntegrityError occurred: {str(e)}')
+            error_message = 'Ошибка при добавлении ингредиента'
             raise ValidationError(
-                ('Ошибка при добавлении ингредиента')
+                {'ingredients': error_message}
             )
 
     def create(self, validated_data):
