@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
@@ -24,8 +22,6 @@ from utils.constans import (
 from utils.validators import validate_username
 
 from .fields import Base64ImageField
-
-logger = logging.getLogger(__name__)
 
 
 class RecipeShortListSerializer(serializers.ModelSerializer):
@@ -289,11 +285,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 for ingredient in ingredients
             )
         except IntegrityError as e:
-            logger.error(f'IntegrityError occurred: {str(e)}')
-            error_message = 'Ошибка при добавлении ингредиента'
-            raise ValidationError(
-                {'ingredients': error_message}
-            )
+            error_message = 'Ошибка при добавлении ингредиента: {}'.format(str(e))
+            raise ValidationError({'ingredients': error_message})
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
