@@ -285,7 +285,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 for ingredient in ingredients
             )
         except IntegrityError as e:
-            error_message = 'Ошибка при добавлении ингредиента: {}'.format(str(e))
+            error_message = (
+                'Ошибка при добавлении ингредиента: {}'.format(str(e)))
             raise ValidationError({'ingredients': error_message})
 
     def create(self, validated_data):
