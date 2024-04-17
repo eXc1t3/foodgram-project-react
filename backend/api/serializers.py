@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
@@ -22,6 +24,8 @@ from utils.constans import (
 from utils.validators import validate_username
 
 from .fields import Base64ImageField
+
+logger = logging.getLogger(__name__)
 
 
 class RecipeShortListSerializer(serializers.ModelSerializer):
