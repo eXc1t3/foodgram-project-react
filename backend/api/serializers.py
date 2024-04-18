@@ -274,8 +274,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def add_ingredients(self, recipe, ingredients):
         """Создание ингредиентов для рецепта"""
-
-        try:
+        ingredients_list = [
             RecipeIngredient.objects.bulk_create(
                 RecipeIngredient(
                     recipe=recipe,
@@ -284,10 +283,8 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 )
                 for ingredient in ingredients
             )
-        except IntegrityError as e:
-            error_message = (
-                'Ошибка при добавлении ингредиента: {}'.format(str(e)))
-            raise ValidationError({'ingredients': error_message})
+        ]
+        RecipeIngredient.objects.bulk_create(ingredients_list)
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
