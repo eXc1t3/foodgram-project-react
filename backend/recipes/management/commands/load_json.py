@@ -15,6 +15,7 @@ from recipes.models import Ingredient, Tag
 #     'tags': Tag,
 # }
 
+
 class Command(BaseCommand):
     help = 'Загрузка JSON-файлов в базу данных.'
 
