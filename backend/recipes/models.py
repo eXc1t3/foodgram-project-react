@@ -1,14 +1,9 @@
 from colorfield.fields import ColorField
-
-from django.core.validators import MaxValueValidator
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from users.models import User
-
 from utils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
-from utils.validators import validate_slug
-from utils.validators import validate_value_greater_zero
+from utils.validators import validate_slug, validate_value_greater_zero
 
 
 class Tag(models.Model):

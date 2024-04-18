@@ -1,4 +1,5 @@
 from rest_framework.pagination import PageNumberPagination
+
 from utils.constans import MAX_PAGE_SIZE
 
 
