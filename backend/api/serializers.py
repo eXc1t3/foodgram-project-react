@@ -1,7 +1,6 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -270,10 +269,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         try:
             RecipeIngredient.objects.bulk_create(
                 RecipeIngredient(
-                    recipe=recipe,
-                    ingredient=get_object_or_404(
-                        Ingredient, id=ingredient['id']
-                    ),
+                    recipe=recipe, ingredient=ingredient['id'],
                     amount=ingredient['amount'],
                 )
                 for ingredient in ingredients
