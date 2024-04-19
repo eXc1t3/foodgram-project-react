@@ -1,6 +1,5 @@
 import collections
 
-from django.db.models import Count
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
