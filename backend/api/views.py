@@ -1,5 +1,4 @@
-import collections
-
+from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -14,7 +13,6 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from api.pagination import LimitPagePagination
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
-from utils.constans import VALUE_ZERO
 from utils.services import add_or_del_obj
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
@@ -176,18 +174,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         filename = f'{user.username}_shopping_list.txt'
         ingredients = (RecipeIngredient.objects.filter(
-            recipe__in=request.user.shopping_cart.all()).values_list(
-                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
-        result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
-        for ingredient, amount, unit in ingredients:
-            result[ingredient] = (
-                result[ingredient][VALUE_ZERO] + amount, unit)
-            file_list = []
-            [file_list.append(
-                '{} - {} {}.'.format(ingredient, amount, unit)) for ingredient,
-                (amount, unit) in result.items()]
+            recipe__in=request.user.shopping_cart.all())
+            .values('ingredient__name', 'ingredient__measurement_unit')
+            .annotate(total_amount=Sum('amount')))
+        file_list = []
+        for ingredient_data in ingredients:
+            ingredient = ingredient_data['ingredient__name']
+            amount = ingredient_data['total_amount']
+            unit = ingredient_data['ingredient__measurement_unit']
+            file_list.append(f'{ingredient} - {amount} {unit}.')
+
             file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
                                 content_type='text/plain')
-            file['Content-Disposition'] = (
-                f'attachment; filename="{filename}"')
+            file['Content-Disposition'] = f'attachment; filename="{filename}"'
         return file
