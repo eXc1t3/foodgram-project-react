@@ -9,7 +9,6 @@ from users.models import Subscription, User
 from utils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
                             RECIPES_LIMIT)
 from utils.validators import validate_username
-
 from .fields import Base64ImageField
 
 
