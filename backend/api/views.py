@@ -1,4 +1,6 @@
-from django.db.models import Sum
+import collections
+
+from django.db.models import Count
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -15,6 +17,7 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from utils.constans import VALUE_ZERO
 from utils.services import add_or_del_obj
+
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
@@ -176,12 +179,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ingredients = (RecipeIngredient.objects.filter(
             recipe__in=request.user.shopping_cart.all()).values_list(
                 'ingredient__name', 'amount', 'ingredient__measurement_unit')
-        ).annotate(amount_sum=Sum('amount'))
-        result = [
-            {'name': ingredient['ingredient__name'],
-             'measurement_unit': ingredient['ingredient__measurement_unit'],
-             'amount': ingredient['amount_sum']} for ingredient in ingredients
-        ]
+        ).annotate(total_amount=Count('ingredient__name'))
+        result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
         for ingredient, amount, unit in ingredients:
             result[ingredient] = (
                 result[ingredient][VALUE_ZERO] + amount, unit)
