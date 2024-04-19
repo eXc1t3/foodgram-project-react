@@ -1,5 +1,3 @@
-import collections
-
 from django.db.models import Sum
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -179,7 +177,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe__in=request.user.shopping_cart.all()).values_list(
                 'ingredient__name', 'amount', 'ingredient__measurement_unit')
         ).annotate(amount_sum=Sum('amount'))
-        result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
+        result = [
+            {'name': ingredient['ingredient__name'],
+             'measurement_unit': ingredient['ingredient__measurement_unit'],
+             'amount': ingredient['amount_sum']} for ingredient in ingredients
+        ]
         for ingredient, amount, unit in ingredients:
             result[ingredient] = (
                 result[ingredient][VALUE_ZERO] + amount, unit)
