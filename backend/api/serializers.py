@@ -1,7 +1,10 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db import IntegrityError
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
@@ -9,6 +12,7 @@ from users.models import Subscription, User
 from utils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
                             RECIPES_LIMIT)
 from utils.validators import validate_username
+
 from .fields import Base64ImageField
 
 
@@ -262,17 +266,22 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 
     def add_ingredients(self, recipe, ingredients):
         """Создание ингредиентов для рецепта"""
-        ingredients_list = [
+
+        try:
             RecipeIngredient.objects.bulk_create(
                 RecipeIngredient(
                     recipe=recipe,
-                    Ingredient_id=ingredient['id'],
+                    ingredient=get_object_or_404(
+                        Ingredient, id=ingredient['id']
+                    ),
                     amount=ingredient['amount'],
                 )
                 for ingredient in ingredients
             )
-        ]
-        RecipeIngredient.objects.bulk_create(ingredients_list)
+        except IntegrityError as error:
+            raise ValidationError(
+                (f'Ошибка при добавлении ингредиента: {error}')
+            )
 
     def create(self, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -280,6 +289,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.add_ingredients(recipe, ingredients)
+        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
@@ -289,6 +299,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         instance.tags.set(tags)
         self.add_ingredients(instance, ingredients)
+        instance.save()
         return instance
 
 
