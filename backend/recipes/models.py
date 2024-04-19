@@ -38,18 +38,18 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента"""
+    """Модель ингредиента"""
 
     name = models.CharField(
-        verbose_name='Название ингридиента',
+        verbose_name='Название ингредиента',
         max_length=MAX_LENGTH)
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         max_length=MAX_LENGTH)
 
     class Meta:
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
 
     def __str__(self):
@@ -82,11 +82,11 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='ingredients',
+        related_name='recipes',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        related_name='recipes',
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
@@ -112,12 +112,12 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Модель ингридиента в рецепте"""
+    """Модель ингредиента в рецепте"""
 
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredient')
+        related_name='recipe_ingredients')
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -126,12 +126,12 @@ class RecipeIngredient(models.Model):
         validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero
                     ],
-        verbose_name='Количество ингридиентов',
+        verbose_name='Количество ингредиентов',
         db_index=True)
 
     class Meta:
-        verbose_name = 'Количество ингридиентов'
-        verbose_name_plural = 'Количество ингридиентов'
+        verbose_name = 'Количество ингредиентов'
+        verbose_name_plural = 'Количество ингредиентов'
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
