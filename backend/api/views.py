@@ -1,6 +1,5 @@
 import collections
 
-from django.db.models import Count
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -178,8 +177,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         filename = f'{user.username}_shopping_list.txt'
         ingredients = (RecipeIngredient.objects.filter(
             recipe__in=request.user.shopping_cart.all()).values_list(
-                'ingredient__name', 'amount', 'ingredient__measurement_unit')
-        ).annotate(total_amount=Count('ingredient__name'))
+                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
         result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
         for ingredient, amount, unit in ingredients:
             result[ingredient] = (
