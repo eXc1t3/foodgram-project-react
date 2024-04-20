@@ -1,6 +1,5 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
@@ -12,9 +11,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from api.pagination import LimitPagePagination
-from recipes.models import (Favorites, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
+from utils.services import add_or_del_obj
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
@@ -143,65 +142,32 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.request.method == 'GET':
             return RecipeSerializer
         return RecipeCreateSerializer
 
-    @action(
-        detail=True,
-        methods=['post'],
-        url_path='favorite',
-        url_name='favorite',
-    )
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+    @action(methods=['post', 'delete'], detail=True)
     def favorite(self, request, pk):
-        """Добавление и удаление рецепта в избранное."""
+        return add_or_del_obj(pk, request, request.user.favorites,
+                              RecipeShortListSerializer)
+
+    @action(methods=['get'], detail=True)
+    def favorited(self, request):
+        user = request.user
+        favorites = user.favorites.all()
+        paginator = LimitPagePagination()
+        pages = paginator.paginate_queryset(favorites)
         serializer = RecipeShortListSerializer(
-            data={'user': request.user.pk, 'recipe': pk}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            pages, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
 
-    @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        deleted_favorites, _ = Favorites.objects.filter(
-            user=request.user, recipe=recipe
-        ).delete()
-        if not deleted_favorites:
-            return Response(
-                {'errors': 'Рецепта нет в избранном!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(
-        detail=True,
-        methods=['post'],
-        url_path='shopping_cart',
-        url_name='shopping_cart',
-    )
+    @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
-        """Добавление и удаление рецепта в список покупок."""
-        serializer = RecipeShortListSerializer(
-            data={'user': request.user.pk, 'recipe': pk}
-        )
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    @shopping_cart.mapping.delete
-    def delete_shopping_cart(self, request, pk):
-        recipe = get_object_or_404(Recipe, id=pk)
-        deleted_shopping_list, _ = (
-            ShoppingCart.objects.filter(user=request.user, recipe=recipe)
-        ).delete()
-        if not deleted_shopping_list:
-            return Response(
-                {'errors': 'Рецепта нет в списке покупок!'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return add_or_del_obj(pk, request, request.user.shopping_cart,
+                              RecipeShortListSerializer)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):
