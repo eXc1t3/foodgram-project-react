@@ -1,6 +1,5 @@
 from django.db.models import Sum
 from django.http import HttpResponse
-
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
@@ -150,11 +149,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True,
-            methods=['post', 'delete'],
-            url_path='favorite',
-            url_name='favorite',
-            permission_classes=(permissions.IsAuthenticated,))
+    @action(methods=['post', 'delete'], detail=True)
     def favorite(self, request, pk):
         return add_or_del_obj(pk, request, request.user.favorites,
                               RecipeShortListSerializer)
@@ -169,11 +164,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             pages, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
 
-    @action(detail=True,
-            methods=['post', 'delete'],
-            url_path='shopping_cart',
-            url_name='shopping_cart',
-            permission_classes=(permissions.IsAuthenticated,))
+    @action(methods=['post', 'delete'], detail=True)
     def shopping_cart(self, request, pk):
         return add_or_del_obj(pk, request, request.user.shopping_cart,
                               RecipeShortListSerializer)
