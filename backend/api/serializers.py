@@ -1,12 +1,10 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import IntegrityError
 from django.db.models import F
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
-
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from utils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
