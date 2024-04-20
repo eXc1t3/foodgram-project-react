@@ -72,4 +72,3 @@ def add_or_del_obj(pk, request, param, serializer_context):
             obj, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
-
