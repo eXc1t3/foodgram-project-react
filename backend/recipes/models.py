@@ -88,16 +88,6 @@ class Recipe(models.Model):
         Tag,
         related_name='recipes',
         verbose_name='Tags')
-    favorites = models.ManyToManyField(
-        User,
-        related_name='favorites',
-        verbose_name='Избранное',
-        blank=True)
-    shopping_cart = models.ManyToManyField(
-        User,
-        related_name='shopping_cart',
-        verbose_name='Список покупок',
-        blank=True)
     created = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время публикации рецепта',)
