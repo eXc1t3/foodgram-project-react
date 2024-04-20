@@ -173,35 +173,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             methods=['post', 'delete'],
             url_path='shopping_cart',
             url_name='shopping_cart',
-            permission_classes=(permissions.IsAuthenticated,)
-            )
+            permission_classes=(permissions.IsAuthenticated,))
     def shopping_cart(self, request, pk):
-        if request.method == 'POST':
-            user = request.user
-            recipe_id = pk
-            try:
-                cart = user.shopping_cart
-            except AttributeError:
-                user.shopping_cart = []
-            cart.append(RecipeShortListSerializer(recipe_id).data)
-            return Response(status=status.HTTP_201_CREATED)
-
-        elif request.method == 'DELETE':
-            user = request.user
-            try:
-                cart = user.shopping_cart
-            except AttributeError:
-                user.shopping_cart = []
-            recipe_id = pk
-            if recipe_id in [item['id'] for item in cart]:
-                cart.remove([item for item in cart
-                             if item['id'] == recipe_id][0])
-                return Response(status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response({'message': 'Invalid method'},
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return add_or_del_obj(pk, request, request.user.shopping_cart,
+                              RecipeShortListSerializer)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):

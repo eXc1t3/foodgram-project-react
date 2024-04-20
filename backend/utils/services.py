@@ -2,13 +2,15 @@ import io
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
 
-from recipes.models import Recipe
+from api.serializers import CartSerializer, RecipeShortSerializer
+from recipes.models import Cart, Recipe
 
 from .constans import (FONT_HEIGHT, HORISONTAL_POSITION_TEXT_ON_PAGE,
                        HORISONTAL_POSITION_TITUL_ON_PAGE, MAX_INTERVAL_LINES,
@@ -55,17 +57,22 @@ def create_shopping_cart(ingredients_cart):
     return response
 
 
-def add_or_del_obj(pk, request, param, serializer_context):
-    """Функция для добавления или удаления объекта."""
-
-    obj = get_object_or_404(Recipe, pk=pk)
-    obj_bool = param.filter(pk=obj.pk).exists()
-    if request.method == 'DELETE' and obj_bool:
-        param.clear()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    if request.method == 'POST' and not obj_bool:
-        param.add(obj)
-        serializer = serializer_context(
-            obj, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+def add_or_del_obj(self, request, pk):
+    """Позволяет текущему пользователю добавлять рецепты
+    в список покупок."""
+    recipe = get_object_or_404(Recipe, pk=pk)
+    if request.method == 'POST':
+        serializer = CartSerializer(
+            data={'user': request.user.id, 'recipe': recipe.id}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        shopping_cart_serializer = RecipeShortSerializer(recipe)
+        return Response(
+            shopping_cart_serializer.data, status=status.HTTP_201_CREATED
+        )
+    shopping_cart_recipe = get_object_or_404(
+        Cart, user=request.user, recipe=recipe
+    )
+    shopping_cart_recipe.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)

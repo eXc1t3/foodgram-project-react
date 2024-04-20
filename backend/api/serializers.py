@@ -7,7 +7,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import Cart, Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from utils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
                             RECIPES_LIMIT)
@@ -343,3 +343,29 @@ class RecipeSerializer(RecipeCreateSerializer):
         if user.is_authenticated:
             return user.shopping_cart.filter(pk=obj.pk).exists()
         return False
+
+
+class CartSerializer(serializers.ModelSerializer):
+    """Сериализатор для модели Cart."""
+    class Meta:
+        model = Cart
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Cart.objects.all(),
+                fields=('user', 'recipe'),
+                message='Рецепт уже в списоке покупок.',
+            )
+        ]
+
+
+class RecipeShortSerializer(serializers.ModelSerializer):
+    """Сериализатор для короткого отображения рецептов."""
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time'
+        )
