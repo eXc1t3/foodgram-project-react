@@ -57,12 +57,14 @@ def create_shopping_cart(ingredients_cart):
 
 
 def add_or_del_obj(pk, request, param, serializer_context):
-    """Функция для добавления или удаления объекта"""
+    """Функция для добавления или удаления объекта."""
 
     obj = get_object_or_404(Recipe, pk=pk)
     obj_bool = param.filter(pk=obj.pk).exists()
     if request.method == 'DELETE' and obj_bool:
-        param.clear()
+        if len(param.filter(pk=obj.pk)) > 1:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        param.filter(pk=obj.pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     if request.method == 'POST' and not obj_bool:
         param.add(obj)
@@ -70,3 +72,4 @@ def add_or_del_obj(pk, request, param, serializer_context):
             obj, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
+
