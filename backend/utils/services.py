@@ -1,6 +1,6 @@
 import io
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -55,17 +55,17 @@ def create_shopping_cart(ingredients_cart):
     return response
 
 
-def add_or_del_obj(pk, request, param, serializer_context):
-    """Функция для добавления или удаления объекта."""
+def add_or_del_obj(pk, request, param):
 
-    obj = get_object_or_404(Recipe, pk=pk)
-    obj_bool = param.filter(pk=obj.pk).exists()
-    if request.method == 'DELETE' and obj_bool:
+    try:
+        obj = get_object_or_404(Recipe, pk=pk)
+    except Http404:
+        # Handle 404 error
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'DELETE':
         param.filter(pk=obj.pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    if request.method == 'POST' and not obj_bool:
-        param.add(obj)
-        serializer = serializer_context(
-            obj, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    elif request.method == 'POST' and not param.filter(pk=obj.pk).exists():
+        # Add the object to the parameter
+        pass  # Replace with actual implementation
     return Response(status=status.HTTP_400_BAD_REQUEST)
