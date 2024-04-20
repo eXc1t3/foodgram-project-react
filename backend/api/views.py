@@ -12,9 +12,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from api.pagination import LimitPagePagination
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import (Favorites, Ingredient, Recipe, RecipeIngredient,
+                            ShoppingCart, Tag)
 from users.models import Subscription, User
-from utils.services import add_or_del_obj
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
@@ -143,32 +143,65 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorOrReadOnly,)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.action in ('list', 'retrieve'):
             return RecipeSerializer
         return RecipeCreateSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
-    @action(methods=['post', 'delete'], detail=True)
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='favorite',
+        url_name='favorite',
+    )
     def favorite(self, request, pk):
-        return add_or_del_obj(pk, request, request.user.favorites,
-                              RecipeShortListSerializer)
-
-    @action(methods=['get'], detail=True)
-    def favorited(self, request):
-        user = request.user
-        favorites = user.favorites.all()
-        paginator = LimitPagePagination()
-        pages = paginator.paginate_queryset(favorites)
+        """Добавление и удаление рецепта в избранное."""
         serializer = RecipeShortListSerializer(
-            pages, many=True, context={'request': request})
-        return paginator.get_paginated_response(serializer.data)
+            data={'user': request.user.pk, 'recipe': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(methods=['post', 'delete'], detail=True)
+    @favorite.mapping.delete
+    def delete_favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        deleted_favorites, _ = Favorites.objects.filter(
+            user=request.user, recipe=recipe
+        ).delete()
+        if not deleted_favorites:
+            return Response(
+                {'errors': 'Рецепта нет в избранном!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='shopping_cart',
+        url_name='shopping_cart',
+    )
     def shopping_cart(self, request, pk):
-        return add_or_del_obj(pk, request, request.user.shopping_cart,
-                              RecipeShortListSerializer)
+        """Добавление и удаление рецепта в список покупок."""
+        serializer = RecipeShortListSerializer(
+            data={'user': request.user.pk, 'recipe': pk}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @shopping_cart.mapping.delete
+    def delete_shopping_cart(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        deleted_shopping_list, _ = (
+            ShoppingCart.objects.filter(user=request.user, recipe=recipe)
+        ).delete()
+        if not deleted_shopping_list:
+            return Response(
+                {'errors': 'Рецепта нет в списке покупок!'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(methods=['get'], detail=False)
     def download_shopping_cart(self, request):

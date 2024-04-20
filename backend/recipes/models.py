@@ -140,3 +140,41 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.ingredient} {self.recipe}'
+
+
+class BaseFavoritesShoppingCart(models.Model):
+    """Базовая модель для избранного и списка покупок."""
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в {self._meta.verbose_name}'
+
+
+class Favorites(BaseFavoritesShoppingCart):
+    """Модель для добавления рецепта в избранное."""
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        default_related_name = 'favorites'
+
+
+class ShoppingCart(BaseFavoritesShoppingCart):
+    """Модель для добавления рецепта в список покупок."""
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        default_related_name = 'shopping_cart'
