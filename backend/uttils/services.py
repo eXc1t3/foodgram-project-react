@@ -7,12 +7,14 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
-from recipes.models import Recipe
 
 from .constans import (FONT_HEIGHT, HORISONTAL_POSITION_TEXT_ON_PAGE,
-                       HORISONTAL_POSITION_TITUL_ON_PAGE, MAX_INTERVAL_LINES,
-                       MIN_VALUE, VERTICAL_POSITION_TEXT_ON_PAGE,
+                       HORISONTAL_POSITION_TITUL_ON_PAGE,
+                       MAX_INTERVAL_LINES, MIN_VALUE,
+                       VERTICAL_POSITION_TEXT_ON_PAGE,
                        VERTICAL_POSITION_TITUL_ON_PAGE)
+
+from recipes.models import Recipe
 
 
 def create_shopping_cart(ingredients_cart):
@@ -60,9 +62,7 @@ def add_or_del_obj(pk, request, param, serializer_context):
     obj = get_object_or_404(Recipe, pk=pk)
     obj_bool = param.filter(pk=obj.pk).exists()
     if request.method == 'DELETE' and obj_bool:
-        if len(param.filter(pk=obj.pk)) > 1:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        param.filter(pk=obj.pk).delete()
+        param.clear()
         return Response(status=status.HTTP_204_NO_CONTENT)
     if request.method == 'POST' and not obj_bool:
         param.add(obj)

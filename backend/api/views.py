@@ -1,4 +1,5 @@
-from django.db.models import Sum
+import collections
+
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
@@ -9,17 +10,18 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from api.pagination import LimitPagePagination
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import Subscription, User
-from utils.services import add_or_del_obj
 
+from api.pagination import LimitPagePagination
+from uttils.services import add_or_del_obj
 from .filters import IngredientSearchFilter, RecipeSearchFilter
+from uttils.constans import VALUE_ZERO
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipeSerializer,
                           RecipeShortListSerializer, SubscriptionSerializer,
                           SubscriptionShowSerializer, TagSerializer)
+from users.models import Subscription, User
 
 
 class CustomUserViewSet(UserViewSet):
@@ -173,17 +175,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = request.user
         filename = f'{user.username}_shopping_list.txt'
         ingredients = (RecipeIngredient.objects.filter(
-            recipe__in=request.user.shopping_cart.all())
-            .values('ingredient__name', 'ingredient__measurement_unit')
-            .annotate(total_amount=Sum('amount')))
-        file_list = []
-        for ingredient_data in ingredients:
-            ingredient = ingredient_data['ingredient__name']
-            amount = ingredient_data['total_amount']
-            unit = ingredient_data['ingredient__measurement_unit']
-            file_list.append(f'{ingredient} - {amount} {unit}.')
-
+            recipe__in=request.user.shopping_cart.all()).values_list(
+                'ingredient__name', 'amount', 'ingredient__measurement_unit'))
+        result = collections.defaultdict(lambda: (VALUE_ZERO, ''))
+        for ingredient, amount, unit in ingredients:
+            result[ingredient] = (
+                result[ingredient][VALUE_ZERO] + amount, unit)
+            file_list = []
+            [file_list.append(
+                '{} - {} {}.'.format(ingredient, amount, unit)) for ingredient,
+                (amount, unit) in result.items()]
             file = HttpResponse('Cписок покупок:\n' + '\n'.join(file_list),
                                 content_type='text/plain')
-            file['Content-Disposition'] = f'attachment; filename="{filename}"'
+            file['Content-Disposition'] = (
+                f'attachment; filename="{filename}"')
         return file

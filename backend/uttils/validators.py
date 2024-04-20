@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
-
 from .constans import VALUE_ZERO
 
 

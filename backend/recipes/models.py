@@ -1,9 +1,11 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
 from colorfield.fields import ColorField
+from django.core.validators import MaxValueValidator, MinValueValidator
+
+from uttils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
 from users.models import User
-from utils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
-from utils.validators import validate_slug, validate_value_greater_zero
+from uttils.validators import validate_slug, validate_value_greater_zero
 
 
 class Tag(models.Model):
@@ -37,18 +39,18 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель ингредиента"""
+    """Модель ингридиента"""
 
     name = models.CharField(
-        verbose_name='Название ингредиента',
+        verbose_name='Название ингридиента',
         max_length=MAX_LENGTH)
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         max_length=MAX_LENGTH)
 
     class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
+        verbose_name = 'Ингридиент'
+        verbose_name_plural = 'Ингридиенты'
         ordering = ('name',)
 
     def __str__(self):
@@ -81,11 +83,11 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='recipes',
+        related_name='ingredients',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='recipes',
+        related_name='tags',
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
@@ -111,7 +113,7 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Модель ингредиента в рецепте"""
+    """Модель ингридиента в рецепте"""
 
     recipe = models.ForeignKey(
         Recipe,
@@ -125,12 +127,12 @@ class RecipeIngredient(models.Model):
         validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero
                     ],
-        verbose_name='Количество ингредиентов',
+        verbose_name='Количество ингридиентов',
         db_index=True)
 
     class Meta:
-        verbose_name = 'Количество ингредиентов'
-        verbose_name_plural = 'Количество ингредиентов'
+        verbose_name = 'Количество ингридиентов'
+        verbose_name_plural = 'Количество ингридиентов'
         constraints = [
             models.UniqueConstraint(
                 fields=('recipe', 'ingredient'),
