@@ -38,18 +38,18 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    """Модель ингридиента"""
+    """Модель ингредиента"""
 
     name = models.CharField(
-        verbose_name='Название ингридиента',
+        verbose_name='Название ингредиента',
         max_length=MAX_LENGTH)
     measurement_unit = models.CharField(
         verbose_name='Единицы измерения',
         max_length=MAX_LENGTH)
 
     class Meta:
-        verbose_name = 'Ингридиент'
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
 
     def __str__(self):
@@ -88,16 +88,6 @@ class Recipe(models.Model):
         Tag,
         related_name='tags',
         verbose_name='Tags')
-    favorites = models.ManyToManyField(
-        User,
-        related_name='favorites',
-        verbose_name='Избранное',
-        blank=True)
-    shopping_cart = models.ManyToManyField(
-        User,
-        related_name='shopping_cart',
-        verbose_name='Список покупок',
-        blank=True)
     created = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время публикации рецепта',)
@@ -132,10 +122,58 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Количество ингридиентов'
         verbose_name_plural = 'Количество ингридиентов'
-        constraints = [
-            models.UniqueConstraint(
-                fields=('recipe', 'ingredient'),
-                name='unique_ingredients_in_recipes')]
 
     def __str__(self):
         return f'{self.ingredient} {self.recipe}'
+
+
+class Favorites(models.Model):
+
+    recipe = models.ForeignKey(
+        Recipe,
+        verbose_name="Понравившиеся рецепты",
+        related_name="in_favorites",
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        verbose_name="Пользователь",
+        related_name="favorites",
+        on_delete=models.CASCADE,
+    )
+    date_added = models.DateTimeField(
+        verbose_name="Дата добавления", auto_now_add=True, editable=False
+    )
+
+    class Meta:
+        verbose_name = "Избранный рецепт"
+        verbose_name_plural = "Избранные рецепты"
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.recipe}"
+
+
+class Carts(models.Model):
+
+    recipe = models.ForeignKey(
+        verbose_name="Рецепты в списке покупок",
+        related_name="in_carts",
+        to=Recipe,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        verbose_name="Владелец списка",
+        related_name="carts",
+        to=User,
+        on_delete=models.CASCADE,
+    )
+    date_added = models.DateTimeField(
+        verbose_name="Дата добавления", auto_now_add=True, editable=False
+    )
+
+    class Meta:
+        verbose_name = "Рецепт в списке покупок"
+        verbose_name_plural = "Рецепты в списке покупок"
+
+    def __str__(self) -> str:
+        return f"{self.user} -> {self.recipe}"
