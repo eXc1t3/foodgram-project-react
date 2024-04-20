@@ -61,7 +61,8 @@ def add_or_del_obj(pk, request, param):
     obj = get_object_or_404(Recipe, pk=pk)
     if request.method == 'DELETE':
         try:
-            param.filter(pk=obj.pk).delete()
+            for p in param.filter(pk=obj.pk):
+                p.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except ObjectDoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
