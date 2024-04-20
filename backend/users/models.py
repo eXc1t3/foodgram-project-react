@@ -1,6 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-
+from django.db import models
 
 from uttils.constans import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
 from uttils.validators import validate_username

@@ -5,7 +5,6 @@ from django.core.management import BaseCommand
 
 from recipes.models import Ingredient, Tag
 
-
 # list_of_data = [
 #     'ingredients',
 #     'tags',
