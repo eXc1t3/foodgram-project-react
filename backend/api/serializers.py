@@ -6,8 +6,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
 
-from recipes.models import (Favorites, Ingredient, Recipe, RecipeIngredient,
-                            ShoppingCart, Tag)
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from utils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
                             RECIPES_LIMIT)
@@ -333,13 +332,13 @@ class RecipeSerializer(RecipeCreateSerializer):
             amount=F('recipes_ingredients__amount'))
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        return bool(request and request.user.is_authenticated
-                    and Favorites.objects.filter(
-                        user=request.user, recipe=obj).exists())
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return user.favorites.filter(pk=obj.pk).exists()
+        return False
 
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        return bool(request and request.user.is_authenticated
-                    and ShoppingCart.objects.filter(
-                        user=request.user, recipe=obj).exists())
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return user.shopping_cart.filter(pk=obj.pk).exists()
+        return False
