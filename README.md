@@ -11,7 +11,7 @@
 [![.github/workflows/main.yml](https://github.com/eXc1t3/kittygram_final/actions/workflows/main.yml/badge.svg)](https://github.com/eXc1t3/foodgram-project-react/actions/workflows/main.yml)
 
 
-# Cервис Foodgram - продуктовый помощник 
+# Cервис Foodgram - продуктовый помощник
 
 - [Описание](#description)
 - [Установка](#run)
