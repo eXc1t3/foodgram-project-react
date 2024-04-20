@@ -82,12 +82,22 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='ingredients',
+        related_name='recipes',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        related_name='recipes',
         verbose_name='Tags')
+    favorites = models.ManyToManyField(
+        User,
+        related_name='favorites',
+        verbose_name='Избранное',
+        blank=True)
+    shopping_cart = models.ManyToManyField(
+        User,
+        related_name='shopping_cart',
+        verbose_name='Список покупок',
+        blank=True)
     created = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Дата и время публикации рецепта',)
@@ -102,12 +112,12 @@ class Recipe(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    """Модель ингридиента в рецепте"""
+    """Модель ингредиента в рецепте"""
 
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredient')
+        related_name='recipe_ingredients')
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -116,64 +126,48 @@ class RecipeIngredient(models.Model):
         validators=[MinValueValidator(MIN_VALUE), MaxValueValidator(MAX_VALUE),
                     validate_value_greater_zero
                     ],
-        verbose_name='Количество ингридиентов',
+        verbose_name='Количество ингредиентов',
         db_index=True)
 
     class Meta:
-        verbose_name = 'Количество ингридиентов'
-        verbose_name_plural = 'Количество ингридиентов'
+        verbose_name = 'Количество ингредиентов'
+        verbose_name_plural = 'Количество ингредиентов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_ingredients_in_recipes')]
 
     def __str__(self):
         return f'{self.ingredient} {self.recipe}'
 
 
-class Favorites(models.Model):
-
-    recipe = models.ForeignKey(
-        Recipe,
-        verbose_name="Понравившиеся рецепты",
-        related_name="in_favorites",
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        User,
-        verbose_name="Пользователь",
-        related_name="favorites",
-        on_delete=models.CASCADE,
-    )
-    date_added = models.DateTimeField(
-        verbose_name="Дата добавления", auto_now_add=True, editable=False
-    )
+class BaseFavoritesShoppingCart(models.Model):
+    """Модель для избранного и списка покупок"""
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               verbose_name='Рецепт')
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             verbose_name='Пользователь')
 
     class Meta:
-        verbose_name = "Избранный рецепт"
-        verbose_name_plural = "Избранные рецепты"
+        abstract = True
 
-    def __str__(self) -> str:
-        return f"{self.user} -> {self.recipe}"
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в {self._meta.verbose_name}'
 
 
-class Carts(models.Model):
-
-    recipe = models.ForeignKey(
-        verbose_name="Рецепты в списке покупок",
-        related_name="in_carts",
-        to=Recipe,
-        on_delete=models.CASCADE,
-    )
-    user = models.ForeignKey(
-        verbose_name="Владелец списка",
-        related_name="carts",
-        to=User,
-        on_delete=models.CASCADE,
-    )
-    date_added = models.DateTimeField(
-        verbose_name="Дата добавления", auto_now_add=True, editable=False
-    )
+class Favorites(BaseFavoritesShoppingCart):
+    """Модель для добавления рецепта в избранное"""
 
     class Meta:
-        verbose_name = "Рецепт в списке покупок"
-        verbose_name_plural = "Рецепты в списке покупок"
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        default_related_name = 'favorites'
 
-    def __str__(self) -> str:
-        return f"{self.user} -> {self.recipe}"
+
+class ShoppingCart(BaseFavoritesShoppingCart):
+    """Модель для добавления рецепта в список покупок"""
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        default_related_name = 'shopping_cart'
