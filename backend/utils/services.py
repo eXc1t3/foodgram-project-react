@@ -63,9 +63,4 @@ def add_or_del_obj(pk, request, param, serializer_context):
     if request.method == 'DELETE' and obj_bool:
         param.remove(obj)
         return Response(status=status.HTTP_204_NO_CONTENT)
-    if request.method == 'POST' and not obj_bool:
-        param.add(obj)
-        serializer = serializer_context(
-            obj, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(status=status.HTTP_400_BAD_REQUEST)
