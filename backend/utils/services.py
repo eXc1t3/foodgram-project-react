@@ -1,6 +1,7 @@
 import io
 
-from django.http import Http404, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -56,16 +57,16 @@ def create_shopping_cart(ingredients_cart):
 
 
 def add_or_del_obj(pk, request, param):
+    """"Функция для добавления или удаления объекта."""
 
-    try:
-        obj = get_object_or_404(Recipe, pk=pk)
-    except Http404:
-        # Handle 404 error
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    obj = get_object_or_404(Recipe, pk=pk)
     if request.method == 'DELETE':
-        param.filter(pk=obj.pk).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            to_delete = param.get(pk=obj.pk)
+            to_delete.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
     elif request.method == 'POST' and not param.filter(pk=obj.pk).exists():
-        # Add the object to the parameter
-        pass  # Replace with actual implementation
+        pass
     return Response(status=status.HTTP_400_BAD_REQUEST)
