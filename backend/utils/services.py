@@ -61,7 +61,7 @@ def add_or_del_obj(pk, request, param, serializer_context):
     obj = get_object_or_404(Recipe, pk=pk)
     obj_bool = param.filter(pk=obj.pk).exists()
     if request.method == 'DELETE' and obj_bool:
-        param.clear()
+        param.filter(pk=obj.pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     if request.method == 'POST' and not obj_bool:
         param.add(obj)
