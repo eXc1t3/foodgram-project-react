@@ -1,8 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
 from colorfield.fields import ColorField
-
 from users.models import User
 from uttils.constans import MAX_LENGTH, MAX_VALUE, MIN_VALUE
 from uttils.validators import validate_slug, validate_value_greater_zero
@@ -83,11 +81,11 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
-        related_name='ingredients',
+        related_name='recipes',
         verbose_name='Ингредиенты')
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        related_name='recipes',
         verbose_name='Tags')
     favorites = models.ManyToManyField(
         User,
