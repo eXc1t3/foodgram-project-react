@@ -1,5 +1,5 @@
 from django.contrib import admin
-from uttils.constans import MIN_VALUE
+from utils.constans import MIN_VALUE
 
 from .models import Ingredient, Recipe, RecipeIngredient, Tag
 

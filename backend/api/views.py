@@ -12,7 +12,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from api.pagination import LimitPagePagination
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
-from uttils.services import add_or_del_obj
+from utils.services import add_or_del_obj
 
 from .filters import IngredientSearchFilter, RecipeSearchFilter
 from .permissions import AnonimOrAuthenticatedReadOnly, IsAuthorOrReadOnly
