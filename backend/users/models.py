@@ -1,6 +1,5 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
 from uttils.constans import MAX_LENGTH_EMAIL, MAX_LENGTH_USER
 from uttils.validators import validate_username
 
@@ -69,9 +68,6 @@ class Subscription(models.Model):
         verbose_name='Автор рецепта'
     )
 
-    def __str__(self):
-        return f'Пользователь "{self.subscriber}" подписан на "{self.author}"'
-
     class Meta:
         verbose_name = 'Подписка на пользователя'
         verbose_name_plural = 'Подписки на пользователей'
@@ -83,6 +79,9 @@ class Subscription(models.Model):
             ),
             models.CheckConstraint(
                 check=~models.Q(subscriber=models.F('author')),
-                name="user_cannot_subscrib_himself",
+                name="Нельзя подписаться на себя",
             ),
         ]
+
+    def __str__(self):
+        return f'Пользователь "{self.subscriber}" подписан на "{self.author}"'
