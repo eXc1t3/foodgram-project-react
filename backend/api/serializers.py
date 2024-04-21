@@ -1,21 +1,17 @@
-import base64
-
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.db.models import F
-from django.shortcuts import get_object_or_404
-
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.validators import UniqueTogetherValidator
-
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import Subscription, User
 from uttils.constans import (MAX_LENGTH, MAX_LENGTH_USER, MAX_VALUE, MIN_VALUE,
                              RECIPES_LIMIT)
 from uttils.validators import validate_username
+
+from .fields import Base64ImageField
 
 
 class RecipeShortListSerializer(serializers.ModelSerializer):
@@ -210,19 +206,6 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         )
 
 
-class Base64ImageField(serializers.ImageField):
-    """Сериализатор для поля картинки в формате Base64."""
-
-    def to_internal_value(self, data):
-        if isinstance(data, str) and data.startswith('data:image'):
-            format, imgstr = data.split(';base64,')
-            ext = format.split('/')[-1]
-            data = ContentFile(base64.b64decode(imgstr),
-                               name='temp.' + ext
-                               )
-        return super().to_internal_value(data)
-
-
 class RecipeCreateSerializer(serializers.ModelSerializer):
     """Сериализатор для создания рецепта."""
 
@@ -286,9 +269,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.bulk_create(
                 RecipeIngredient(
                     recipe=recipe,
-                    ingredient=get_object_or_404(
-                        Ingredient, id=ingredient['id']
-                    ),
+                    ingredient_id=ingredient['id'],
                     amount=ingredient['amount'],
                 )
                 for ingredient in ingredients
@@ -304,7 +285,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         self.add_ingredients(recipe, ingredients)
-        recipe.save()
         return recipe
 
     def update(self, instance, validated_data):
@@ -314,7 +294,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         instance.tags.set(tags)
         self.add_ingredients(instance, ingredients)
-        instance.save()
         return instance
 
 

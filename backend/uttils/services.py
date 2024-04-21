@@ -2,13 +2,11 @@ import io
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.response import Response
-
 from recipes.models import Recipe
 
 from .constans import (FONT_HEIGHT, HORISONTAL_POSITION_TEXT_ON_PAGE,
@@ -57,7 +55,7 @@ def create_shopping_cart(ingredients_cart):
 
 
 def add_or_del_obj(pk, request, param, serializer_context):
-    """"Функция для добавления или удаления объекта."""
+    """"Функция для добавления или удаления объекта"""
 
     obj = get_object_or_404(Recipe, pk=pk)
     obj_bool = param.filter(pk=obj.pk).exists()
