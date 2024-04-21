@@ -2,18 +2,8 @@ import json
 
 from django.conf import settings
 from django.core.management import BaseCommand
-
 from recipes.models import Ingredient, Tag
 
-# list_of_data = [
-#     'ingredients',
-#     'tags',
-# ]
-
-# data_models_dict = {
-#     'ingredients': Ingredient,
-#     'tags': Tag,
-# }
 
 class Command(BaseCommand):
     help = 'Загрузка JSON-файлов в базу данных.'
